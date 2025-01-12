@@ -1,3 +1,5 @@
+import { IMAGE_FORMAT } from "../typings";
+
 export const IMAGES_CONST = {
     base_url: 'http://image.tmdb.org/t/p/',
     secure_base_url: 'https://image.tmdb.org/t/p/',
@@ -39,17 +41,14 @@ export const IMAGES_CONST = {
     },
 };
 
-export enum IMAGE_TYPES {
-    BACKDROP = 'backdrop',
-    LOGO = 'logo',
-    POSTER = 'poster',
-    WIDE_CARD = 'wide_card',
-    PROFILE = 'profile',
-}
-
 export const IMAGE_SIZE_DEFAULTS = {
     backdrop: IMAGES_CONST.backdrop_sizes.w1280,
     logo: IMAGES_CONST.backdrop_sizes.w1280,
     poster: IMAGES_CONST.poster_sizes.w342,
     profile: IMAGES_CONST.profile_sizes.w185,
 }
+
+export const DEFAULT_IMAGE_QUALITY = {
+    [IMAGE_FORMAT.WEBP]: 80,
+    [IMAGE_FORMAT.AVIF]: 50,
+};

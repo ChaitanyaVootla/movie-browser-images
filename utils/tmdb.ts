@@ -1,14 +1,15 @@
 import axios from "axios";
-import { IMAGE_SIZE_DEFAULTS, IMAGE_TYPES, IMAGES_CONST } from "./constants";
+import { TMDB_IMAGE, IMAGE_TYPE } from "../typings";
+import { IMAGE_SIZE_DEFAULTS, IMAGES_CONST } from "../constants/imageConstants";
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
-export const getMovieImages = async (movieId: number) => {
+export const getMovieImages = async (movieId: string): Promise<TMDB_IMAGE> => {
     const {data: movie}: any = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=images`);
     const poster = movie.poster_path;
     const backdrop = movie.backdrop_path;
-    const english_logo = movie.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
-    const english_wide_card = movie.images.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
+    const logo = movie.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
+    const widePoster = movie.images.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
 
     return {
         name: movie.title,
@@ -16,17 +17,17 @@ export const getMovieImages = async (movieId: number) => {
         imdb_id: movie.imdb_id,
         poster,
         backdrop,
-        english_logo,
-        english_wide_card,
+        logo,
+        widePoster,
     };
 };
 
-export const getSeriesImages = async (seriesId: number) => {
+export const getSeriesImages = async (seriesId: string): Promise<TMDB_IMAGE> => {
     const {data: series}: any = await axios.get(`${TMDB_BASE_URL}/tv/${seriesId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=images`);
     const poster = series.poster_path;
     const backdrop = series.backdrop_path;
-    const english_logo = series.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
-    const english_wide_card = series.images.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
+    const logo = series.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
+    const widePoster = series.images.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
 
     return {
         name: series.name,
@@ -34,22 +35,21 @@ export const getSeriesImages = async (seriesId: number) => {
         imdb_id: series.imdb_id,
         poster,
         backdrop,
-        english_logo,
-        english_wide_card,
+        logo,
+        widePoster,
     };
 };
 
-
-export const getTmdbImagePath = (path: string, imageType: IMAGE_TYPES) => {
+export const getTmdbImagePath = (path: string, imageType: IMAGE_TYPE) => {
     if (!path) {
         return '';
     }
     switch (imageType) {
-        case IMAGE_TYPES.POSTER:
+        case IMAGE_TYPE.POSTER:
             return `${IMAGES_CONST.base_url}${IMAGE_SIZE_DEFAULTS.poster}${path}`;
-        case IMAGE_TYPES.BACKDROP:
+        case IMAGE_TYPE.BACKDROP:
             return `${IMAGES_CONST.base_url}${IMAGE_SIZE_DEFAULTS.backdrop}${path}`;
-        case IMAGE_TYPES.LOGO:
+        case IMAGE_TYPE.LOGO:
             return `${IMAGES_CONST.base_url}${IMAGE_SIZE_DEFAULTS.logo}${path}`;
         default:
             return `${IMAGES_CONST.base_url}${IMAGES_CONST.poster_sizes.w500}${path}`;
