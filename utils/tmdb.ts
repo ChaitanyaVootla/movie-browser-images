@@ -5,7 +5,12 @@ import { IMAGE_SIZE_DEFAULTS, IMAGES_CONST } from "../constants/imageConstants";
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 export const getMovieImages = async (movieId: string): Promise<TMDB_IMAGE> => {
-    const {data: movie}: any = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=images`);
+    const {data: movie}: any = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}?api_key=${process.env.TMDB_API_KEY
+        }&append_to_response=images`).catch((error) => {
+            console.error('Error fetching movie data:', error);
+            return {};
+        }
+    );
     const poster = movie.poster_path;
     const backdrop = movie.backdrop_path;
     const logo = movie.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
@@ -23,7 +28,12 @@ export const getMovieImages = async (movieId: string): Promise<TMDB_IMAGE> => {
 };
 
 export const getSeriesImages = async (seriesId: string): Promise<TMDB_IMAGE> => {
-    const {data: series}: any = await axios.get(`${TMDB_BASE_URL}/tv/${seriesId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=images`);
+    const {data: series}: any = await axios.get(`${TMDB_BASE_URL}/tv/${seriesId}?api_key=${process.env.TMDB_API_KEY
+        }&append_to_response=images`).catch((error) => {
+            console.error('Error fetching series data:', error);
+            return {};
+        }
+    );
     const poster = series.poster_path;
     const backdrop = series.backdrop_path;
     const logo = series.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;

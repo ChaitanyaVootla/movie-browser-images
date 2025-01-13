@@ -4,7 +4,7 @@ import { ITEM_TPYE } from '../typings';
 import { updateImages } from "../processor/imagesProcessor";
 import { ITEM_CONVERT_STATS } from "../typings/imageConvert";
 
-const CHUNK_SIZE = 10;
+const CHUNK_SIZE = 30;
 
 export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_CONVERT_STATS> => {
     const convertStats: ITEM_CONVERT_STATS = {
@@ -18,7 +18,7 @@ export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_
 
     const progressBar = new SingleBar(
         {
-            format: 'Progress |{bar}| {percentage}% | ETA: {eta_formatted} | {value}/{total} Chunks',
+            format: 'Progress |{bar}| {percentage}% | Elapsed: {duration_formatted} | ETA: {eta_formatted} | {value}/{total} Chunks',
         },
         Presets.shades_classic
     );
@@ -50,7 +50,7 @@ export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_
 export const generateMovieImages = async (db: any): Promise<ITEM_CONVERT_STATS> => {
     try {
         const moviesData = await getLatestMovieData();
-        const movieIds = moviesData.map(({ id }) => id).slice(0, 20);
+        const movieIds = moviesData.map(({ id }) => id);
         console.log(`Generating images for ${movieIds.length} Movies...`);
         const convertStats = await generateImages(movieIds, db);
         console.log('Images generated successfully!');

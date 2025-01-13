@@ -18,7 +18,7 @@ export const generateImages = async (seriesIds: string[], db: any): Promise<ITEM
 
     const progressBar = new SingleBar(
         {
-            format: 'Progress |{bar}| {percentage}% | ETA: {eta_formatted} | {value}/{total} Chunks',
+            format: 'Progress |{bar}| {percentage}% | Elapsed: {duration_formatted} | ETA: {eta_formatted} | {value}/{total} Chunks',
         },
         Presets.shades_classic
     );
