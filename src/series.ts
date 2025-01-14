@@ -1,5 +1,5 @@
 import { updateImages } from "@processor/imagesProcessor";
-import { ITEM_TPYE, ITEM_CONVERT_STATS } from "@typings";
+import { ITEM_TYPE, ITEM_CONVERT_STATS } from "@typings";
 import { getLatestSeriesData } from "./tmdb_dump";
 import { SingleBar, Presets } from "cli-progress";
 
@@ -26,7 +26,7 @@ export const generateImages = async (seriesIds: string[], db: any): Promise<ITEM
     for (let i = 0; i < seriesIds.length; i += CHUNK_SIZE) {
         const chunk = seriesIds.slice(i, i + CHUNK_SIZE);
         const updateResults = await Promise.all(
-            chunk.map(async (seriesId) => updateImages(db, seriesId, ITEM_TPYE.SERIES))
+            chunk.map(async (seriesId) => updateImages(db, seriesId, ITEM_TYPE.SERIES))
         );
 
         updateResults.forEach((result) => {

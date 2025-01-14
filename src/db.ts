@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import { DB_IMAGE_ITEM, ITEM_TPYE } from '@/typings';
+import { DB_IMAGE_ITEM, ITEM_TYPE } from '@/typings';
 
 // Open the SQLite database or create it if it doesn't exist
 const initDB = async () => {
@@ -56,7 +56,7 @@ const upsertRecord = async (db: sqlite3.Database, data: DB_IMAGE_ITEM) => {
   ]);
 };
 
-const getRecordByIdAndType = async (db: sqlite3.Database, id: string, type: ITEM_TPYE): Promise<DB_IMAGE_ITEM> => {
+const getRecordByIdAndType = async (db: sqlite3.Database, id: string, type: ITEM_TYPE): Promise<DB_IMAGE_ITEM> => {
   const result: any = await db.get(
     `SELECT * FROM movies_series_images WHERE id = ? AND type = ?`,
     [id, type]

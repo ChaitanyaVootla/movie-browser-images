@@ -2,10 +2,10 @@ import { DEFAULT_IMAGE_QUALITY } from "@constants/imageConstants";
 import { getRecordByIdAndType, upsertRecord } from "@/db";
 import { convertImage } from "@/imageConverter";
 import { getMovieImages, getSeriesImages, getTmdbImagePath } from "@utils";
-import { DB_IMAGE_ITEM, IMAGE_FORMAT, IMAGE_TYPE, ITEM_TPYE, TMDB_IMAGE } from "@typings";
+import { DB_IMAGE_ITEM, IMAGE_FORMAT, IMAGE_TYPE, ITEM_TYPE, TMDB_IMAGE } from "@typings";
 import { CONVERT_PAYLOAD, CONVERT_RESULT, ITEM_CONVERT_STATS } from "@typings/imageConvert";
 
-export const updateImages = async (db: any, itemID: string, type: ITEM_TPYE): Promise<ITEM_CONVERT_STATS> => {
+export const updateImages = async (db: any, itemID: string, type: ITEM_TYPE): Promise<ITEM_CONVERT_STATS> => {
     let itemConvertStats = {
         averageCompressionRatio: 0,
         totalConverted: 0,
@@ -15,10 +15,10 @@ export const updateImages = async (db: any, itemID: string, type: ITEM_TPYE): Pr
     } as ITEM_CONVERT_STATS;
     let data = {} as TMDB_IMAGE;
     switch (type) {
-        case ITEM_TPYE.MOVIE:
+        case ITEM_TYPE.MOVIE:
             data = await getMovieImages(itemID);
             break;
-        case ITEM_TPYE.SERIES:
+        case ITEM_TYPE.SERIES:
             data = await getSeriesImages(itemID);
             break;
         default:

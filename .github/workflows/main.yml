@@ -28,5 +28,5 @@ jobs:
         touch .env
         echo "TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}" >> .env
 
-    - name: Generate sample images
-      run: npm run sample
+    # - name: Generate sample images
+    #   run: npm run sample

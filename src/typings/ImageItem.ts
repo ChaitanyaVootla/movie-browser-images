@@ -1,6 +1,6 @@
 export interface DB_IMAGE_ITEM {
     id: string;
-    type: ITEM_TPYE;
+    type: ITEM_TYPE;
     logo?: IMAGE_OBJECT;
     logoLight?: IMAGE_OBJECT;
     logoDark?: IMAGE_OBJECT;
@@ -16,7 +16,7 @@ export interface IMAGE_OBJECT {
     updatedAt: string;
 }
 
-export enum ITEM_TPYE {
+export enum ITEM_TYPE {
     MOVIE = 'movie',
     SERIES = 'series',
 }

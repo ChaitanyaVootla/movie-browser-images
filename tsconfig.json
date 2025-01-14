@@ -16,6 +16,7 @@
       "@constants": ["./src/constants"],
       "@constants/*": ["./src/constants/*"],
       "@processor/*": ["./src/processor/*"],
+      "@workers/*": ["./src/workers/*"],
     },
   },
   "include": ["src/**/*"],
