@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "sample": "cross-env TEST_LIMIT=1000 ts-node -r tsconfig-paths/register src/index.ts",
+    "sample": "cross-env TEST_LIMIT=100 ts-node -r tsconfig-paths/register src/index.ts",
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "build": "tsc"
   },
