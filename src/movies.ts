@@ -5,7 +5,7 @@ import { ITEM_TYPE } from '@typings';
 import { updateImages } from "@processor/imagesProcessor";
 import { ITEM_CONVERT_STATS } from "@typings";
 
-const CHUNK_SIZE = os.cpus().length * 2;
+const CHUNK_SIZE = 30;
 
 export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_CONVERT_STATS> => {
     const convertStats: ITEM_CONVERT_STATS = {

@@ -13,3 +13,7 @@ sudo systemctl enable docker
 sudo docker --version
 
 sudo docker run -d --name redis -p 6379:6379 redis
+
+git clone https://github.com/ChaitanyaVootla/movie-browser-images.git
+cd movie-browser-images
+npm i

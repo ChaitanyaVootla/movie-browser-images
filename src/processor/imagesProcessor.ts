@@ -5,6 +5,8 @@ import { getMovieImages, getSeriesImages, getTmdbImagePath } from "@utils";
 import { DB_IMAGE_ITEM, IMAGE_FORMAT, IMAGE_TYPE, ITEM_TYPE, TMDB_IMAGE } from "@typings";
 import { CONVERT_PAYLOAD, CONVERT_RESULT, ITEM_CONVERT_STATS } from "@typings/imageConvert";
 
+const TARGET_FORMATS = [IMAGE_FORMAT.WEBP];
+
 export const updateImages = async (db: any, itemID: string, type: ITEM_TYPE): Promise<ITEM_CONVERT_STATS> => {
     let itemConvertStats = {
         averageCompressionRatio: 0,
@@ -75,7 +77,7 @@ export const updateImages = async (db: any, itemID: string, type: ITEM_TYPE): Pr
 const getImagesToUpdate = (dbItem: DB_IMAGE_ITEM, tmdbItem: TMDB_IMAGE, targetPrefix: string): CONVERT_PAYLOAD[] => {
     const imagesToUpdate: CONVERT_PAYLOAD[] = [];
     if (tmdbItem.poster && (tmdbItem.poster !== dbItem.poster?.original)) {
-        imagesToUpdate.push(...[IMAGE_FORMAT.WEBP, IMAGE_FORMAT.AVIF].map((format) => ({
+        imagesToUpdate.push(...TARGET_FORMATS.map((format) => ({
             original: getTmdbImagePath(tmdbItem.poster, IMAGE_TYPE.POSTER),
             originalPath: tmdbItem.poster,
             target: targetPrefix + IMAGE_TYPE.POSTER,
@@ -85,7 +87,7 @@ const getImagesToUpdate = (dbItem: DB_IMAGE_ITEM, tmdbItem: TMDB_IMAGE, targetPr
         })));
     }
     if (tmdbItem.backdrop && (tmdbItem.backdrop !== dbItem.backdrop?.original)) {
-        imagesToUpdate.push(...[IMAGE_FORMAT.WEBP, IMAGE_FORMAT.AVIF].map((format) => ({
+        imagesToUpdate.push(...TARGET_FORMATS.map((format) => ({
             original: getTmdbImagePath(tmdbItem.backdrop, IMAGE_TYPE.BACKDROP),
             originalPath: tmdbItem.backdrop,
             target: targetPrefix + IMAGE_TYPE.BACKDROP,
@@ -95,7 +97,7 @@ const getImagesToUpdate = (dbItem: DB_IMAGE_ITEM, tmdbItem: TMDB_IMAGE, targetPr
         })));
     }
     if (tmdbItem.logo && (tmdbItem.logo !== dbItem.logo?.original)) {
-        imagesToUpdate.push(...[IMAGE_FORMAT.WEBP, IMAGE_FORMAT.AVIF].map((format) => ({
+        imagesToUpdate.push(...TARGET_FORMATS.map((format) => ({
             original: getTmdbImagePath(tmdbItem.logo, IMAGE_TYPE.LOGO),
             originalPath: tmdbItem.logo,
             target: targetPrefix + IMAGE_TYPE.LOGO,
@@ -105,7 +107,7 @@ const getImagesToUpdate = (dbItem: DB_IMAGE_ITEM, tmdbItem: TMDB_IMAGE, targetPr
         })));
     }
     if (tmdbItem.widePoster && (tmdbItem.widePoster !== dbItem.widePoster?.original)) {
-        imagesToUpdate.push(...[IMAGE_FORMAT.WEBP, IMAGE_FORMAT.AVIF].map((format) => ({
+        imagesToUpdate.push(...TARGET_FORMATS.map((format) => ({
             original: getTmdbImagePath(tmdbItem.widePoster, IMAGE_TYPE.WIDE_POSTER),
             originalPath: tmdbItem.widePoster,
             target: targetPrefix + IMAGE_TYPE.WIDE_POSTER,
