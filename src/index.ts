@@ -3,7 +3,7 @@ import { uploadFolderToS3 } from "@utils/s3";
 import { generateSeriesImages } from "@/series";
 import { initDB } from "@/db";
 import { bytesToGb, bytesToKb } from "@utils";
-import { generateMovieImages } from './workers/movie';
+import { generateMovieImages } from '@/movies';
 
 require('dotenv').config();
 

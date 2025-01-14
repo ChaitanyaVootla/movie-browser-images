@@ -10,7 +10,7 @@ const movieImageQueue = new Queue(queueName);
 const connection = { host: 'localhost', port: 6379 };
 
 const startWorker = (db: any) => {
-  const concurrency = os.cpus().length;
+  const concurrency = os.cpus().length * 2;
   console.log(`Starting worker with concurrency = ${concurrency}`);
 
   const worker = new Worker(

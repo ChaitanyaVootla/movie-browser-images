@@ -1,10 +1,11 @@
 import { getLatestMovieData } from "./tmdb_dump";
+import os from 'os';
 import { SingleBar, Presets } from "cli-progress";
-import { ITEM_TPYE } from '@typings';
+import { ITEM_TYPE } from '@typings';
 import { updateImages } from "@processor/imagesProcessor";
 import { ITEM_CONVERT_STATS } from "@typings";
 
-const CHUNK_SIZE = 30;
+const CHUNK_SIZE = os.cpus().length * 2;
 
 export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_CONVERT_STATS> => {
     const convertStats: ITEM_CONVERT_STATS = {
@@ -27,7 +28,7 @@ export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_
     for (let i = 0; i < movieIds.length; i += CHUNK_SIZE) {
         const chunk = movieIds.slice(i, i + CHUNK_SIZE);
         const updateResults = await Promise.all(
-            chunk.map(async (movieId) => updateImages(db, movieId, ITEM_TPYE.MOVIE))
+            chunk.map(async (movieId) => updateImages(db, movieId, ITEM_TYPE.MOVIE))
         );
 
         updateResults.forEach((result) => {
