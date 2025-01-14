@@ -1,7 +1,7 @@
 import sharp from "sharp";
 import * as fs from "fs";
 import * as path from "path";
-import { CONVERT_PAYLOAD, CONVERT_RESULT } from "../typings/imageConvert";
+import { CONVERT_PAYLOAD, CONVERT_RESULT } from "@typings";
 
 const BASE_STORE_PATH = "./data/images";
 

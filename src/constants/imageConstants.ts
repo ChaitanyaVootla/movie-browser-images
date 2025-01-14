@@ -1,4 +1,4 @@
-import { IMAGE_FORMAT } from "../typings";
+import { IMAGE_FORMAT } from "@typings";
 
 export const IMAGES_CONST = {
     base_url: 'http://image.tmdb.org/t/p/',

@@ -5,7 +5,18 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@utils": ["./src/utils"],
+      "@utils/*": ["./src/utils/*"],
+      "@typings": ["./src/typings"],
+      "@typings/*": ["./src/typings/*"],
+      "@constants": ["./src/constants"],
+      "@constants/*": ["./src/constants/*"],
+      "@processor/*": ["./src/processor/*"],
+    },
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

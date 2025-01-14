@@ -1,8 +1,8 @@
 import { getLatestMovieData } from "./tmdb_dump";
 import { SingleBar, Presets } from "cli-progress";
-import { ITEM_TPYE } from '../typings';
-import { updateImages } from "../processor/imagesProcessor";
-import { ITEM_CONVERT_STATS } from "../typings/imageConvert";
+import { ITEM_TPYE } from '@typings';
+import { updateImages } from "@processor/imagesProcessor";
+import { ITEM_CONVERT_STATS } from "@typings";
 
 const CHUNK_SIZE = 30;
 
@@ -51,6 +51,9 @@ export const generateMovieImages = async (db: any): Promise<ITEM_CONVERT_STATS> 
     try {
         const moviesData = await getLatestMovieData();
         const movieIds = moviesData.map(({ id }) => id);
+        if (process.env.TEST_LIMIT) {
+            movieIds.length = parseInt(process.env.TEST_LIMIT);
+        }
         console.log(`Generating images for ${movieIds.length} Movies...`);
         const convertStats = await generateImages(movieIds, db);
         console.log('Images generated successfully!');

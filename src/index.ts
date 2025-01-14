@@ -1,9 +1,9 @@
-import { generateMovieImages } from "./src/movies";
+import { generateMovieImages } from "@/movies";
 import * as fs from 'fs';
-import { uploadFolderToS3 } from "./utils/s3";
-import { generateSeriesImages } from "./src/series";
-import { initDB } from "./src/db";
-import { bytesToGb, bytesToKb } from "./utils";
+import { uploadFolderToS3 } from "@utils/s3";
+import { generateSeriesImages } from "@/series";
+import { initDB } from "@/db";
+import { bytesToGb, bytesToKb } from "@utils";
 
 require('dotenv').config();
 

@@ -1,6 +1,5 @@
-import { updateImages } from "../processor/imagesProcessor";
-import { ITEM_TPYE } from "../typings";
-import { ITEM_CONVERT_STATS } from "../typings/imageConvert";
+import { updateImages } from "@processor/imagesProcessor";
+import { ITEM_TPYE, ITEM_CONVERT_STATS } from "@typings";
 import { getLatestSeriesData } from "./tmdb_dump";
 import { SingleBar, Presets } from "cli-progress";
 
@@ -51,6 +50,9 @@ export const generateSeriesImages = async (db: any): Promise<ITEM_CONVERT_STATS>
     try {
         const seriesData = await getLatestSeriesData();
         const seriesIds = seriesData.map(({ id }) => id);
+        if (process.env.TEST_LIMIT) {
+            seriesIds.length = parseInt(process.env.TEST_LIMIT);
+        }
         console.log(`Generating images for ${seriesIds.length} popular Series...`);
         const convertStats = await generateImages(seriesIds, db);
         console.log('Images generated successfully!');

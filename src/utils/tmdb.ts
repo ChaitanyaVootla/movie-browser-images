@@ -1,6 +1,6 @@
 import axios from "axios";
-import { TMDB_IMAGE, IMAGE_TYPE } from "../typings";
-import { IMAGE_SIZE_DEFAULTS, IMAGES_CONST } from "../constants/imageConstants";
+import { TMDB_IMAGE, IMAGE_TYPE } from "@typings";
+import { IMAGE_SIZE_DEFAULTS, IMAGES_CONST } from "@constants/imageConstants";
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
