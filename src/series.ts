@@ -3,7 +3,7 @@ import { ITEM_TYPE, ITEM_CONVERT_STATS } from "@typings";
 import { getLatestSeriesData } from "./tmdb_dump";
 import { SingleBar, Presets } from "cli-progress";
 
-const CHUNK_SIZE = 30;
+const CHUNK_SIZE = 70;
 
 export const generateImages = async (seriesIds: string[], db: any): Promise<ITEM_CONVERT_STATS> => {
     const convertStats: ITEM_CONVERT_STATS = {

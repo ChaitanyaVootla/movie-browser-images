@@ -1,11 +1,9 @@
 import { getLatestMovieData } from "./tmdb_dump";
-import os from 'os';
 import { SingleBar, Presets } from "cli-progress";
-import { ITEM_TYPE } from '@typings';
+import { ITEM_TYPE, ITEM_CONVERT_STATS } from '@typings';
 import { updateImages } from "@processor/imagesProcessor";
-import { ITEM_CONVERT_STATS } from "@typings";
 
-const CHUNK_SIZE = 30;
+const CHUNK_SIZE = 70;
 
 export const generateImages = async (movieIds: string[], db: any): Promise<ITEM_CONVERT_STATS> => {
     const convertStats: ITEM_CONVERT_STATS = {

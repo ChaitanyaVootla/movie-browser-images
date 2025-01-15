@@ -56,6 +56,45 @@ const upsertRecord = async (db: sqlite3.Database, data: DB_IMAGE_ITEM) => {
   ]);
 };
 
+// Bulk add or update records
+const bulkUpsertRecords = async (db: sqlite3.Database, data: DB_IMAGE_ITEM[]) => {
+  const query = `
+    INSERT INTO movies_series_images (id, type, logo, logoLight, logoDark, poster, backdrop, widePoster, lastUpdated)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id, type) DO UPDATE SET
+      logo = excluded.logo,
+      logoLight = excluded.logoLight,
+      logoDark = excluded.logoDark,
+      poster = excluded.poster,
+      backdrop = excluded.backdrop,
+      widePoster = excluded.widePoster,
+      lastUpdated = excluded.lastUpdated;
+  `;
+
+  try {
+    await db.exec('BEGIN TRANSACTION');
+
+    for (const record of data) {
+      await db.run(query, [
+        record.id,
+        record.type,
+        JSON.stringify(record.logo) || null,
+        JSON.stringify(record.logoLight) || null,
+        JSON.stringify(record.logoDark) || null,
+        JSON.stringify(record.poster) || null,
+        JSON.stringify(record.backdrop) || null,
+        JSON.stringify(record.widePoster) || null,
+        record.lastUpdated,
+      ]);
+    }
+
+    await db.exec('COMMIT');
+  } catch (error) {
+    await db.exec('ROLLBACK');
+    console.error('Error during bulk upsert:', error);
+  }
+};
+
 const getRecordByIdAndType = async (db: sqlite3.Database, id: string, type: ITEM_TYPE): Promise<DB_IMAGE_ITEM> => {
   const result: any = await db.get(
     `SELECT * FROM movies_series_images WHERE id = ? AND type = ?`,
@@ -88,4 +127,4 @@ const getAllRecords = async (db: sqlite3.Database) => {
   return await db.all(`SELECT * FROM movies_series_images`);
 };
 
-export { initDB, upsertRecord, getRecordByIdAndType, getAllRecords };
+export { initDB, upsertRecord, bulkUpsertRecords, getRecordByIdAndType, getAllRecords };
