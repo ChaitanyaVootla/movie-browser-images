@@ -6,7 +6,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "sample": "cross-env TEST_LIMIT=100 ts-node -r tsconfig-paths/register src/index.ts",
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
-    "benchmark:network": "ts-node -r tsconfig-paths/register src/benchmark/network.ts",
+    "initialize": "ts-node -r tsconfig-paths/register src/initialize/tmdb.ts",
+    "increment": "cross-env CHANGE_DAYS=1 ts-node -r tsconfig-paths/register src/increment/tmdb.ts",
+    "generate": "ts-node -r tsconfig-paths/register src/generator/imageGenerator.ts",
+    "reset": "ts-node -r tsconfig-paths/register src/reset/resetGeneratedFlag.ts",
     "build": "tsc"
   },
   "author": "",

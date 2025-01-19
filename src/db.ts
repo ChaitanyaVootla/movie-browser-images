@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import { DB_IMAGE_ITEM, ITEM_TYPE } from '@/typings';
+import { DB_IMAGE_ITEM, GENERATE_IMAGE_DB_DATA, IMAGE_TYPE, ITEM_TYPE } from '@/typings';
 
 // Open the SQLite database or create it if it doesn't exist
 const initDB = async () => {
@@ -123,8 +123,132 @@ const getRecordByIdAndType = async (db: sqlite3.Database, id: string, type: ITEM
   return result as unknown as DB_IMAGE_ITEM;
 };
 
+const getRecordsByIdsAndType = async (db: sqlite3.Database, ids: string[], type: ITEM_TYPE): Promise<DB_IMAGE_ITEM[]> => {
+  const results = await db.all(
+    `SELECT * FROM movies_series_images WHERE id IN (${ids.map(() => '?').join(',')}) AND type = ?`,
+    [...ids, type]
+  ) as unknown as any[];
+  return results.map((result) => {
+    if (result.logo) {
+      result.logo = JSON.parse(result.logo);
+    }
+    if (result.logoLight) {
+      result.logoLight = JSON.parse(result.logoLight);
+    }
+    if (result.logoDark) {
+      result.logoDark = JSON.parse(result.logoDark);
+    }
+    if (result.poster) {
+      result.poster = JSON.parse(result.poster);
+    }
+    if (result.backdrop) {
+      result.backdrop = JSON.parse(result.backdrop);
+    }
+    if (result.widePoster) {
+      result.widePoster = JSON.parse(result.widePoster);
+    }
+    return result as unknown as DB_IMAGE_ITEM;
+  });
+}
+
+const getMissingRecordIdsByIdsAndType = async (db: sqlite3.Database, ids: string[], type: ITEM_TYPE): Promise<string[]> => {
+  const results = await db.all(
+    `SELECT id FROM movies_series_images WHERE id IN (${ids.map(() => '?').join(',')}) AND type = ?`,
+    [...ids, type]
+  ) as unknown as any[];
+  return ids.filter((id) => !results.some((result) => result.id === `${id}`));
+};
+
+const getImagesToGenerate = async (db: sqlite3.Database, itemType: ITEM_TYPE): Promise<GENERATE_IMAGE_DB_DATA[]> => {
+  const allDbItems = await db.all(`SELECT * FROM movies_series_images WHERE type = ?`, [itemType]) as unknown as any[]
+
+  const allItems = allDbItems.map((result) => {
+    if (result.logo) {
+      result.logo = JSON.parse(result.logo);
+    }
+    if (result.logoLight) {
+      result.logoLight = JSON.parse(result.logoLight);
+    }
+    if (result.logoDark) {
+      result.logoDark = JSON.parse(result.logoDark);
+    }
+    if (result.poster) {
+      result.poster = JSON.parse(result.poster);
+    }
+    if (result.backdrop) {
+      result.backdrop = JSON.parse(result.backdrop);
+    }
+    if (result.widePoster) {
+      result.widePoster = JSON.parse(result.widePoster);
+    }
+    return result as unknown as DB_IMAGE_ITEM;
+  });
+  const imagesToGenerate: GENERATE_IMAGE_DB_DATA[] = [];
+
+  allItems.forEach((item) => {
+    if (item.logo?.original && !item.logo?.isGenerated) {
+      imagesToGenerate.push({
+        id: item.id,
+        type: itemType,
+        imageType: IMAGE_TYPE.LOGO,
+        original: item.logo.original,
+      });
+    }
+    if (item.backdrop?.original && !item.backdrop?.isGenerated) {
+      imagesToGenerate.push({
+        id: item.id,
+        type: itemType,
+        imageType: IMAGE_TYPE.BACKDROP,
+        original: item.backdrop.original,
+      });
+    }
+    if (item.widePoster?.original && !item.widePoster?.isGenerated) {
+      imagesToGenerate.push({
+        id: item.id,
+        type: itemType,
+        imageType: IMAGE_TYPE.WIDE_POSTER,
+        original: item.widePoster.original,
+      });
+    }
+    if (item.poster?.original && !item.poster?.isGenerated) {
+      imagesToGenerate.push({
+        id: item.id,
+        type: itemType,
+        imageType: IMAGE_TYPE.POSTER,
+        original: item.poster.original,
+      });
+    }
+  });
+
+  return imagesToGenerate;
+}
+
+const setGeneratedByIdTypeAndImageType = async (db: sqlite3.Database, id: string, type: ITEM_TYPE, imageType: IMAGE_TYPE, value: Boolean) => {
+  await db.run(
+    `UPDATE movies_series_images SET ${imageType} = json_set(${imageType}, '$.isGenerated', ${value}) WHERE id = ? AND type = ?`,
+    [id, type]
+  );
+}
+
+const resetGeneratedImages = async (db: sqlite3.Database) => {
+  await db.run(
+    `UPDATE movies_series_images SET logo = json_remove(logo, '$.isGenerated'), logoLight = json_remove(logoLight, '$.isGenerated'), logoDark = json_remove(logoDark, '$.isGenerated'), poster = json_remove(poster, '$.isGenerated'), backdrop = json_remove(backdrop, '$.isGenerated'), widePoster = json_remove(widePoster, '$.isGenerated')`
+  );
+}
+
 const getAllRecords = async (db: sqlite3.Database) => {
   return await db.all(`SELECT * FROM movies_series_images`);
 };
 
-export { initDB, upsertRecord, bulkUpsertRecords, getRecordByIdAndType, getAllRecords };
+export {
+  initDB,
+  upsertRecord,
+  bulkUpsertRecords,
+  getRecordByIdAndType,
+  getRecordsByIdsAndType,
+  getMissingRecordIdsByIdsAndType,
+  getAllRecords,
+  getImagesToGenerate,
+  setGeneratedByIdTypeAndImageType,
+  resetGeneratedImages,
+};

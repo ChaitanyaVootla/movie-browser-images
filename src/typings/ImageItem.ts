@@ -13,6 +13,7 @@ export interface DB_IMAGE_ITEM {
 export interface IMAGE_OBJECT {
     original: string;
     originalFullPath?: string;
+    isGenerated?: boolean;
     updatedAt?: string;
 }
 

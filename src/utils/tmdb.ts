@@ -1,6 +1,7 @@
 import axios from "axios";
-import { TMDB_IMAGE, IMAGE_TYPE } from "@typings";
+import { TMDB_IMAGE, IMAGE_TYPE, ITEM_TYPE } from "@typings";
 import { IMAGE_SIZE_DEFAULTS, IMAGES_CONST } from "@constants/imageConstants";
+import { axiosInstance, retryWithBackoff } from "./axios";
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -51,6 +52,29 @@ export const getSeriesImages = async (seriesId: string): Promise<TMDB_IMAGE> => 
     };
 };
 
+export const getItemImages = async (itemId: string, itemType: ITEM_TYPE): Promise<TMDB_IMAGE> => {
+  try {
+    const { data: item }: any = await retryWithBackoff(() => axiosInstance.get(`${itemType === ITEM_TYPE.MOVIE ? 'movie' : 'tv'}/${itemId}`));
+    const poster = item.poster_path;
+    const backdrop = item.backdrop_path;
+    const logo = item.images.logos.find(({ iso_639_1 }: { iso_639_1: string }) => iso_639_1 === 'en')?.file_path;
+    const widePoster = item.images.backdrops.find(({ iso_639_1 }: { iso_639_1: string }) => iso_639_1 === 'en')?.file_path;
+
+    return {
+      name: item.title,
+      id: item.id,
+      imdb_id: item.imdb_id,
+      poster,
+      backdrop,
+      logo,
+      widePoster,
+    };
+  } catch (error: any) {
+    console.error(`Error fetching ${itemType} data for id ${itemId}:`, error.message);
+    return {} as TMDB_IMAGE;
+  }
+};
+
 export const getTmdbImagePath = (path: string, imageType: IMAGE_TYPE) => {
     if (!path) {
         return '';
@@ -66,3 +90,35 @@ export const getTmdbImagePath = (path: string, imageType: IMAGE_TYPE) => {
             return `${IMAGES_CONST.base_url}${IMAGES_CONST.poster_sizes.w500}${path}`;
     }
 }
+
+export const getChangesByItemAndDays = async (itemType: ITEM_TYPE, days: number = 1): Promise<string[]> => {
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    console.log(`Fetching ${itemType} changes from ${startDate} to ${tomorrow}`);
+    const results = [];
+
+    const { data: firstChanges } = await retryWithBackoff(() => axiosInstance.get(`${itemType === ITEM_TYPE.MOVIE ? 'movie' : 'tv'}/changes`, {
+        params: {
+            start_date: startDate,
+            end_date: tomorrow,
+        },
+    }));
+    console.log(`Fetched page 1 of ${firstChanges.total_pages}`);
+    const pagesCount = firstChanges.total_pages;
+    results.push(...firstChanges.results);
+
+    for (let i = 2; i <= pagesCount; i++) {
+        const { data: changes } = await retryWithBackoff(() => axiosInstance.get(`${itemType === ITEM_TYPE.MOVIE ? 'movie' : 'tv'}/changes`, {
+            params: {
+                start_date: startDate,
+                end_date: tomorrow,
+                page: i,
+            },
+        }));
+        console.log(`Fetched page ${i} of ${pagesCount}`);
+        results.push(...changes.results);
+    }
+
+    return results.map(({ id }: { id: string }) => id);
+};
