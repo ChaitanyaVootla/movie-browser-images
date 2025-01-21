@@ -9,6 +9,7 @@
     "initialize": "ts-node -r tsconfig-paths/register src/initialize/tmdb.ts",
     "increment": "cross-env CHANGE_DAYS=1 ts-node -r tsconfig-paths/register src/increment/tmdb.ts",
     "generate": "ts-node -r tsconfig-paths/register src/generator/imageGenerator.ts",
+    "upload": "ts-node -r tsconfig-paths/register src/upload/dumpToS3.ts",
     "reset": "ts-node -r tsconfig-paths/register src/reset/resetGeneratedFlag.ts",
     "build": "tsc"
   },
@@ -17,6 +18,7 @@
   "description": "",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.721.0",
+    "@smithy/node-http-handler": "^4.0.2",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "bullmq": "^5.34.10",

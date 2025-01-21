@@ -3,6 +3,8 @@ name: Run Image Generator
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   build-and-generate:
@@ -20,13 +22,17 @@ jobs:
       run: |
         npm install
 
-    - name: Build
-      run: npm run build
-
     - name: Set Env vars
       run: |
         touch .env
         echo "TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}" >> .env
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+        echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+        echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
 
-    # - name: Generate sample images
-    #   run: npm run sample
+    - name: Run Image generator
+      run: |
+        npm run increment
+        npm run generate
+        npm run upload

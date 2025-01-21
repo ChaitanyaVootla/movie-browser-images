@@ -1,4 +1,4 @@
-import { bulkUpsertRecords, initDB } from '@/db';
+import { bulkUpsertRecords, getRecordsByIdsAndType, initDB } from '@/db';
 import { DB_IMAGE_ITEM, ITEM_TYPE } from '@/typings';
 import { getChangesByItemAndDays, getItemImages } from '@/utils';
 
@@ -9,20 +9,72 @@ const ETA_WINDOW_SIZE = 10; // Number of recent batches to average for ETA calcu
 
 const processBatch = async (itemIds: string[], db: any, itemType: ITEM_TYPE): Promise<void> => {
   const results = await Promise.all(itemIds.map(itemId => getItemImages(itemId, itemType)));
-  const dbUpdates = results
-    .filter((result) => result.id)
-    .map((result) => ({
-      id: result.id,
-      type: itemType,
-      logo: { original: result.logo },
-      poster: { original: result.poster },
-      backdrop: { original: result.backdrop },
-      widePoster: { original: result.widePoster },
-      lastUpdated: new Date().toISOString(),
-    } as DB_IMAGE_ITEM));
-  if (dbUpdates.length) {
-    await bulkUpsertRecords(db, dbUpdates);
+  const dbItems = await getRecordsByIdsAndType(db, itemIds, itemType);
+  // const dbUpdates = results
+  //   .filter((result) => result.id)
+  //   .map((result) => ({
+  //     id: result.id,
+  //     type: itemType,
+  //     logo: { original: result.logo },
+  //     poster: { original: result.poster },
+  //     backdrop: { original: result.backdrop },
+  //     widePoster: { original: result.widePoster },
+  //     lastUpdated: new Date().toISOString(),
+  //   } as DB_IMAGE_ITEM));
+  // if (dbUpdates.length) {
+  //   await bulkUpsertRecords(db, dbUpdates);
+  // }
+  const dbItemsToUpsert: DB_IMAGE_ITEM[] = [];
+  const stats = {
+    create: 0,
+    update: 0,
   }
+  results.forEach((result) => {
+    if (!result.id) {
+      return;
+    }
+
+    const dbItem = dbItems.find((item) => item.id == result.id);
+    if (!dbItem) {
+      dbItemsToUpsert.push({
+        id: result.id,
+        type: itemType,
+        logo: { original: result.logo },
+        poster: { original: result.poster },
+        backdrop: { original: result.backdrop },
+        widePoster: { original: result.widePoster },
+        lastUpdated: new Date().toISOString(),
+      });
+      stats.create++;
+    } else {
+      let isUpdated = false
+      if (result.logo && (!dbItem.logo?.original || dbItem.logo.original !== result.logo)) {
+        dbItem.logo = { original: result.logo };
+        isUpdated = true;
+      }
+      if (result.poster && (!dbItem.poster?.original || dbItem.poster.original !== result.poster)) {
+        dbItem.poster = { original: result.poster };
+        isUpdated = true;
+      }
+      if (result.backdrop && (!dbItem.backdrop?.original || dbItem.backdrop.original !== result.backdrop)) {
+        dbItem.backdrop = { original: result.backdrop };
+        isUpdated = true;
+      }
+      if (result.widePoster && (!dbItem.widePoster?.original || dbItem.widePoster.original !== result.widePoster)) {
+        dbItem.widePoster = { original: result.widePoster };
+        isUpdated = true;
+      }
+      if (isUpdated) {
+        stats.update++;
+        dbItem.lastUpdated = new Date().toISOString();
+      }
+    }
+  });
+  if (dbItemsToUpsert.length) {
+    await bulkUpsertRecords(db, dbItemsToUpsert);
+  }
+
+  console.log(`----------------Upserting ${dbItemsToUpsert.length} stats: ${JSON.stringify(stats)}`);
 };
 
 const init = async (itemType: ITEM_TYPE) => {

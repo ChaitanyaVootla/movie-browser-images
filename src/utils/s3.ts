@@ -1,10 +1,18 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand, S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { NodeHttpHandler } from "@smithy/node-http-handler";
 import fs from 'fs';
 import path from 'path';
 import * as mime from 'mime-types';
 import { SingleBar, Presets } from 'cli-progress';
 
-const s3Client = new S3Client({});
+const s3Client = new S3Client({
+    requestHandler: new NodeHttpHandler({
+        socketTimeout: 120000,
+        socketAcquisitionWarningTimeout: 120000,
+        connectionTimeout: 120000,
+        requestTimeout: 120000,
+    }),
+});
 
 // Utility function to get all files in a folder recursively
 const getAllFiles = (dir: string, folderPath: string[] = []): string[] => {
@@ -23,10 +31,35 @@ const getAllFiles = (dir: string, folderPath: string[] = []): string[] => {
 const resolveContentType = (fileName: string): string =>
   mime.lookup(fileName) || 'application/octet-stream';
 
+// Function to check if a file exists in S3 with the same size
+const fileExistsInS3 = async (bucketName: string, key: string, localFileSize: number): Promise<boolean> => {
+    try {
+        const headObject = await s3Client.send(
+            new HeadObjectCommand({ Bucket: bucketName, Key: key })
+        );
+        return headObject.ContentLength === localFileSize;
+    } catch (error: any) {
+        if (error.name === 'NotFound') {
+            return false;
+        }
+        throw error;
+    }
+};
+
 // Function to upload a file to S3
-const uploadFile = async (filePath: string, bucketName: string, basePath: string): Promise<void> => {
+const uploadFile = async (filePath: string, bucketName: string, basePath: string, force: boolean): Promise<void> => {
     const fileContent = fs.readFileSync(filePath);
     const relativePath = path.relative(basePath, filePath).replace(/\\/g, '/');
+
+    if (!force) {
+        // Check if the file already exists in S3
+        const fileSize = fs.statSync(filePath).size;
+        const exists = await fileExistsInS3(bucketName, relativePath, fileSize);
+
+        if (exists) {
+            return;
+        }
+    }
 
     await s3Client.send(
         new PutObjectCommand({
@@ -40,7 +73,7 @@ const uploadFile = async (filePath: string, bucketName: string, basePath: string
 };
 
 // Main function to upload folder
-export const uploadFolderToS3 = async (folderPath: string, bucketName: string, chunkSize: number = 200): Promise<void> => {
+export const uploadFolderToS3 = async (folderPath: string, bucketName: string, chunkSize: number = 200, force=true): Promise<void> => {
     console.log('Counting files and calculating total size...');
     const files = getAllFiles(folderPath);
     const totalSize = files.reduce((acc, file) => acc + fs.statSync(file).size, 0);
@@ -60,7 +93,8 @@ export const uploadFolderToS3 = async (folderPath: string, bucketName: string, c
     const uploadQueue = async (fileBatch: string[]) => {
         return Promise.all(fileBatch.map(async (file) => {
             try {
-                await uploadFile(file, bucketName, folderPath);
+                await uploadFile(file, bucketName, folderPath, force);
+                fs.unlinkSync(file);
             } catch (error) {
                 console.error(`Error uploading ${file}:`, error);
             }
