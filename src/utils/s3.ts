@@ -1,9 +1,15 @@
-import { PutObjectCommand, S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, S3Client, HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from "@smithy/node-http-handler";
 import fs from 'fs';
+import { createWriteStream } from "fs";
 import path from 'path';
 import * as mime from 'mime-types';
 import { SingleBar, Presets } from 'cli-progress';
+import { promisify } from "util";
+import { pipeline } from "stream";
+
+// Promisify the stream pipeline
+const streamPipeline = promisify(pipeline);
 
 const s3Client = new S3Client({
     requestHandler: new NodeHttpHandler({
@@ -47,7 +53,7 @@ const fileExistsInS3 = async (bucketName: string, key: string, localFileSize: nu
 };
 
 // Function to upload a file to S3
-const uploadFile = async (filePath: string, bucketName: string, basePath: string, force: boolean): Promise<void> => {
+export const uploadFile = async (filePath: string, bucketName: string, basePath: string, force: boolean): Promise<void> => {
     const fileContent = fs.readFileSync(filePath);
     const relativePath = path.relative(basePath, filePath).replace(/\\/g, '/');
 
@@ -111,3 +117,33 @@ export const uploadFolderToS3 = async (folderPath: string, bucketName: string, c
     progressBar.stop();
     console.log('Folder upload complete.');
 };
+
+// Function to download a file from S3
+export const downloadFile = async (bucketName: string, key: string, destinationPath: string) => {
+    try {
+      // Create a GetObjectCommand
+      const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      });
+  
+      // Send the command to S3
+      const response = await s3Client.send(command);
+  
+      // Ensure the response body is not null
+      if (!response.Body) {
+        throw new Error("No content in response body");
+      }
+  
+      // Create a write stream to the local file
+      const fileStream = createWriteStream(destinationPath);
+  
+      // Pipe the response body to the file
+      // @ts-ignore
+      await streamPipeline(response.Body, fileStream);
+  
+      console.log(`File downloaded successfully to ${destinationPath}`);
+    } catch (error: any) {
+      console.error("Error downloading file:", error.message);
+    }
+  }

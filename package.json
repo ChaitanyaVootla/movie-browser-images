@@ -7,9 +7,11 @@
     "sample": "cross-env TEST_LIMIT=100 ts-node -r tsconfig-paths/register src/index.ts",
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "initialize": "ts-node -r tsconfig-paths/register src/initialize/tmdb.ts",
+    "pullDb": "ts-node -r tsconfig-paths/register src/s3/pullDb.ts",
+    "pushDb": "ts-node -r tsconfig-paths/register src/s3/pushDb.ts",
     "increment": "cross-env CHANGE_DAYS=1 ts-node -r tsconfig-paths/register src/increment/tmdb.ts",
     "generate": "ts-node -r tsconfig-paths/register src/generator/imageGenerator.ts",
-    "upload": "ts-node -r tsconfig-paths/register src/upload/dumpToS3.ts",
+    "upload": "ts-node -r tsconfig-paths/register src/s3/dumpToS3.ts",
     "reset": "ts-node -r tsconfig-paths/register src/reset/resetGeneratedFlag.ts",
     "build": "tsc"
   },
