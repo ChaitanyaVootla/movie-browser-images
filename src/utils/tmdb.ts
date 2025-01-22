@@ -11,8 +11,8 @@ export const getMovieImages = async (movieId: string): Promise<TMDB_IMAGE> => {
             }&append_to_response=images`);
         const poster = movie.poster_path;
         const backdrop = movie.backdrop_path;
-        const logo = movie.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
-        const widePoster = movie.images.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
+        const logo = movie.images?.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
+        const widePoster = movie.images?.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
 
         return {
             name: movie.title,
@@ -38,8 +38,8 @@ export const getSeriesImages = async (seriesId: string): Promise<TMDB_IMAGE> => 
     );
     const poster = series.poster_path;
     const backdrop = series.backdrop_path;
-    const logo = series.images.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
-    const widePoster = series.images.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
+    const logo = series.images?.logos.find((logo: any) => logo.iso_639_1 === 'en')?.file_path;
+    const widePoster = series.images?.backdrops.find((backdrop: any) => backdrop.iso_639_1 === 'en')?.file_path;
 
     return {
         name: series.name,
@@ -57,8 +57,8 @@ export const getItemImages = async (itemId: string, itemType: ITEM_TYPE): Promis
     const { data: item }: any = await retryWithBackoff(() => axiosInstance.get(`${itemType === ITEM_TYPE.MOVIE ? 'movie' : 'tv'}/${itemId}`));
     const poster = item.poster_path;
     const backdrop = item.backdrop_path;
-    const logo = item.images.logos.find(({ iso_639_1 }: { iso_639_1: string }) => iso_639_1 === 'en')?.file_path;
-    const widePoster = item.images.backdrops.find(({ iso_639_1 }: { iso_639_1: string }) => iso_639_1 === 'en')?.file_path;
+    const logo = item.images?.logos.find(({ iso_639_1 }: { iso_639_1: string }) => iso_639_1 === 'en')?.file_path;
+    const widePoster = item.images?.backdrops.find(({ iso_639_1 }: { iso_639_1: string }) => iso_639_1 === 'en')?.file_path;
 
     return {
       name: item.title,
