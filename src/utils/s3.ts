@@ -13,10 +13,10 @@ const streamPipeline = promisify(pipeline);
 
 const s3Client = new S3Client({
     requestHandler: new NodeHttpHandler({
-        socketTimeout: 120000,
-        socketAcquisitionWarningTimeout: 120000,
-        connectionTimeout: 120000,
-        requestTimeout: 120000,
+        socketTimeout: 180000,
+        socketAcquisitionWarningTimeout: 180000,
+        connectionTimeout: 180000,
+        requestTimeout: 180000,
     }),
 });
 
@@ -97,13 +97,9 @@ export const uploadFolderToS3 = async (folderPath: string, bucketName: string, c
     progressBar.start(totalChunks, 0);
 
     const uploadQueue = async (fileBatch: string[]) => {
-        return Promise.all(fileBatch.map(async (file) => {
-            try {
-                await uploadFile(file, bucketName, folderPath, force);
-                fs.unlinkSync(file);
-            } catch (error) {
-                console.error(`Error uploading ${file}:`, error);
-            }
+        return Promise.allSettled(fileBatch.map(async (file) => {
+            return uploadFile(file, bucketName, folderPath, force).then(() => fs.unlinkSync(file))
+                .catch((error) => console.error(`Error uploading ${file}:`, error));
         }));
     };
 

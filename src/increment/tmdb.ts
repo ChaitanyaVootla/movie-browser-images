@@ -10,25 +10,12 @@ const ETA_WINDOW_SIZE = 10; // Number of recent batches to average for ETA calcu
 const processBatch = async (itemIds: string[], db: any, itemType: ITEM_TYPE): Promise<void> => {
   const results = await Promise.all(itemIds.map(itemId => getItemImages(itemId, itemType)));
   const dbItems = await getRecordsByIdsAndType(db, itemIds, itemType);
-  // const dbUpdates = results
-  //   .filter((result) => result.id)
-  //   .map((result) => ({
-  //     id: result.id,
-  //     type: itemType,
-  //     logo: { original: result.logo },
-  //     poster: { original: result.poster },
-  //     backdrop: { original: result.backdrop },
-  //     widePoster: { original: result.widePoster },
-  //     lastUpdated: new Date().toISOString(),
-  //   } as DB_IMAGE_ITEM));
-  // if (dbUpdates.length) {
-  //   await bulkUpsertRecords(db, dbUpdates);
-  // }
   const dbItemsToUpsert: DB_IMAGE_ITEM[] = [];
   const stats = {
     create: 0,
     update: 0,
   }
+
   results.forEach((result) => {
     if (!result.id) {
       return;
@@ -67,6 +54,7 @@ const processBatch = async (itemIds: string[], db: any, itemType: ITEM_TYPE): Pr
       if (isUpdated) {
         stats.update++;
         dbItem.lastUpdated = new Date().toISOString();
+        dbItemsToUpsert.push(dbItem);
       }
     }
   });
